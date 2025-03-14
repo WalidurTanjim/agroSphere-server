@@ -29,6 +29,7 @@ async function run() {
     // database info
     const db = client.db('agroSphere');
     const usersCollection = db.collection('users');
+    const videosCollection = db.collection('videos');
 
 
     // users
@@ -42,6 +43,18 @@ async function run() {
         const result = await usersCollection.insertOne(newUser);
         res.send(result);
     })
+
+    //videos
+    app.get('/videos', async (req, res) => {
+      const videos = await videosCollection.find().toArray();
+      res.send(videos);
+    });
+
+    app.post('/videos', async (req, res) => {
+      const newVideo = req.body;
+      const result = await videosCollection.insertOne(newVideo);
+      res.send(result);
+    });
 
 
     // Send a ping to confirm a successful connection
