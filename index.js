@@ -41,6 +41,7 @@ async function run() {
     const db = client.db('agroSphere');
     const usersCollection = db.collection('users');
     const videosCollection = db.collection('videos');
+    const forumCollection = db.collection('forum')
 
     
         // middleware
