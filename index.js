@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -29,6 +29,7 @@ async function run() {
     // database info
     const db = client.db('agroSphere');
     const usersCollection = db.collection('users');
+    const forumCollection = db.collection('forum')
 
 
     // users
@@ -42,6 +43,38 @@ async function run() {
         const result = await usersCollection.insertOne(newUser);
         res.send(result);
     })
+
+    // forum page 
+
+    app.post('/forum', async (req, res) => {
+      const query = req.body;
+      const result = await forumCollection.insertOne(query);
+      res.send(result);
+    });
+
+    app.get('/forum', async(req , res)=>{
+      const result = await forumCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.patch('/forum/upvote/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = { $inc: { upVote: 1 } };
+      const result = await forumCollection.updateOne(query, update);
+      res.send(result);
+  });
+
+  // **Increase Downvote**
+  app.patch('/forum/downvote/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = { $inc: { downVote: 1 } };
+      const result = await forumCollection.updateOne(query, update);
+      res.send(result);
+  });
+
+    
 
 
     // Send a ping to confirm a successful connection
