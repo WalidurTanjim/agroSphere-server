@@ -42,6 +42,7 @@ async function run() {
     const usersCollection = db.collection('users');
     const videosCollection = db.collection('videos');
     const forumCollection = db.collection('forum')
+    const trainersCollection = db.collection('trainers');
 
     
         // middleware
@@ -175,6 +176,14 @@ async function run() {
       console.log(id)
       res.send(result);
   });
+
+
+
+  // trainers related APIs starts
+  app.get('/trainers', async(req, res) => {
+    const result = await trainersCollection.find().toArray();
+    res.send(result);
+  })
 
     
 
