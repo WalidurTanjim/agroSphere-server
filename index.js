@@ -2,8 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const port = process.env.PORT || 5000;
+
+
 
 // middlewares
 app.use(cors());
@@ -20,6 +23,10 @@ const client = new MongoClient(uri, {
       deprecationErrors: true,
     }
 });
+
+// AI Model Setup
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 async function run() {
   try {
@@ -55,6 +62,26 @@ async function run() {
       const result = await videosCollection.insertOne(newVideo);
       res.send(result);
     });
+
+
+    // AI integrate (saikat ahmed)
+    app.post('/ai-response', async (req, res) => {
+      const { prompt } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ message: "Please provide a valid prompt." });
+      }
+
+      try {
+        const response = await model.generateContent(prompt);
+        const text = response.response.text();
+        res.json({ answer: text });
+      } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ message: "AI processing failed. Please try again later." });
+      }
+    });
+
 
 
     // Send a ping to confirm a successful connection
