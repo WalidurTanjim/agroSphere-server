@@ -42,6 +42,7 @@ async function run() {
     const usersCollection = db.collection('users');
     const videosCollection = db.collection('videos');
     const forumCollection = db.collection('forum')
+    const trainersCollection = db.collection('trainers');
 
     
         // middleware
@@ -180,6 +181,15 @@ async function run() {
     const result = await forumCollection.find().sort({ _id: -1 }).limit(4).toArray();
     res.send(result);
 });
+
+
+  // trainers related APIs starts
+  app.get('/trainers', async(req, res) => {
+    const result = await trainersCollection.find().toArray();
+    res.send(result);
+  })
+
+    
 
 
     // Send a ping to confirm a successful connection
