@@ -176,7 +176,10 @@ async function run() {
       res.send(result);
   });
 
-    
+  app.get('/forum/latest', async (req, res) => {
+    const result = await forumCollection.find().sort({ _id: -1 }).limit(4).toArray();
+    res.send(result);
+});
 
 
     // Send a ping to confirm a successful connection
