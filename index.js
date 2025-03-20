@@ -1,6 +1,9 @@
 require('dotenv').config();
+const jwt = require("jsonwebtoken");
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser')
+const morgan = require("morgan");
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const cookieParser = require("cookie-parser");
@@ -12,6 +15,7 @@ const port = process.env.PORT || 5000;
 
 const corsOptions = {
   origin: ["http://localhost:5173", "http://localhost:5174"],
+
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -48,6 +52,7 @@ async function run() {
     const videosCollection = db.collection('videos');
     const forumCollection = db.collection('forum')
     const trainersCollection = db.collection('trainers');
+    const successStoryCollection = db.collection('successStory');
 
 
     // middleware
@@ -187,11 +192,32 @@ async function run() {
       res.send(result);
     });
 
-    // trainers related APIs starts
-    app.get('/trainers', async (req, res) => {
-      const result = await trainersCollection.find().toArray();
-      res.send(result);
-    })
+
+  // trainers related APIs starts
+  app.get('/trainer/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await trainersCollection.findOne(query);
+    res.send(result);
+  })
+
+  app.get('/trainers', async(req, res) => {
+    const result = await trainersCollection.find().toArray();
+    res.send(result);
+  })
+
+// add success story
+  app.post('/story', async(req, res) => {
+    const query = req.body;
+    const result = await successStoryCollection.insertOne(query);
+    res.send(result);
+  })
+
+  // get success story
+  app.get('/story', async(req, res) => {
+    const result = await successStoryCollection.find().toArray();
+    res.send(result);
+  })
 
 
     // AI integrate (saikat ahmed)
