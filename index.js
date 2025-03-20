@@ -6,9 +6,6 @@ const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
-const morgan = require("morgan");
 const app = express();
 const port = process.env.PORT || 5000;
 
