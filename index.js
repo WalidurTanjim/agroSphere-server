@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
@@ -31,6 +32,10 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+// AI Model Setup
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 async function run() {
   try {
