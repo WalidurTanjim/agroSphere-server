@@ -9,6 +9,7 @@ const port = process.env.PORT || 5000;
 
 const corsOptions = {
   origin: ["http://localhost:5173", "http://localhost:5174"],
+
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -48,6 +49,7 @@ async function run() {
     const videosCollection = db.collection('videos');
     const forumCollection = db.collection('forum')
     const trainersCollection = db.collection('trainers');
+    const successStoryCollection = db.collection('successStory');
 
     
         // middleware
@@ -194,7 +196,18 @@ async function run() {
     res.send(result);
   })
 
-    
+// add success story
+  app.post('/story', async(req, res) => {
+    const query = req.body;
+    const result = await successStoryCollection.insertOne(query);
+    res.send(result);
+  })
+
+  // get success story
+  app.get('/story', async(req, res) => {
+    const result = await successStoryCollection.find().toArray();
+    res.send(result);
+  })
 
 
     // AI integrate (saikat ahmed)
