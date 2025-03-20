@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const port = process.env.PORT || 5000;
@@ -194,6 +194,13 @@ async function run() {
 
 
   // trainers related APIs starts
+  app.get('/trainer/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await trainersCollection.findOne(query);
+    res.send(result);
+  })
+
   app.get('/trainers', async(req, res) => {
     const result = await trainersCollection.find().toArray();
     res.send(result);
