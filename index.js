@@ -235,6 +235,23 @@ async function run() {
       }
     });
 
+    // userRole
+    app.get('/user/role/:email', async(req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+
+      const validRoles = ["farmer", "seller", "trainer", "admin"];
+
+      let userRole;
+
+      if(user && validRoles.includes(user.role)){
+        userRole = user.role;
+      }
+
+      res.send({ userRole });
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
