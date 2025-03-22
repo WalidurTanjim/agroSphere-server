@@ -203,14 +203,14 @@ async function run() {
   })
 
 // add success story
-  app.post('/story', async(req, res) => {
+  app.post('/success-stories', async(req, res) => {
     const query = req.body;
     const result = await successStoryCollection.insertOne(query);
     res.send(result);
   })
 
   // get success story
-  app.get('/story', async(req, res) => {
+  app.get('/success-stories', async(req, res) => {
     const result = await successStoryCollection.find().toArray();
     res.send(result);
   })
