@@ -4,25 +4,22 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const port = process.env.PORT || 5000;
 
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: ["http://localhost:5173", "http://localhost:5174", "https://agro-sphere-server.vercel.app"],
   credentials: true,
   optionSuccessStatus: 200,
 };
-
-
 // middlewares
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
-
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2yrio.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -51,6 +48,7 @@ async function run() {
     const videosCollection = db.collection('videos');
     const forumCollection = db.collection('forum')
     const trainersCollection = db.collection('trainers');
+    const successStoryCollection = db.collection('successStory');
 
 
     // middleware
@@ -196,6 +194,31 @@ async function run() {
       const result = await trainersCollection.find().toArray();
       res.send(result);
     })
+  // trainers related APIs starts
+  app.get('/trainer/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await trainersCollection.findOne(query);
+    res.send(result);
+  })
+
+  app.get('/trainers', async(req, res) => {
+    const result = await trainersCollection.find().toArray();
+    res.send(result);
+  })
+
+// add success story
+  app.post('/success-stories', async(req, res) => {
+    const query = req.body;
+    const result = await successStoryCollection.insertOne(query);
+    res.send(result);
+  })
+
+  // get success story
+  app.get('/success-stories', async(req, res) => {
+    const result = await successStoryCollection.find().toArray();
+    res.send(result);
+  })
 
 
 
@@ -217,7 +240,22 @@ async function run() {
       }
     });
 
+    // userRole
+    app.get('/user/role/:email', async(req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
 
+      const validRoles = ["farmer", "seller", "trainer", "admin"];
+
+      let userRole;
+
+      if(user && validRoles.includes(user.role)){
+        userRole = user.role;
+      }
+
+      res.send({ userRole });
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
