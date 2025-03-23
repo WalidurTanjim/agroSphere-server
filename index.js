@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: ["http://localhost:5173", "http://localhost:5174", "https://nimble-souffle-58fb98.netlify.app"],
   credentials: true,
   optionSuccessStatus: 200,
 };
