@@ -64,6 +64,7 @@ async function run() {
     const trainersCollection = db.collection('trainers');
     const successStoryCollection = db.collection('successStory');
     const taskCollection = db.collection("taskRecords");
+    const productsCollection = db.collection('products');
 
 
     // middleware
@@ -493,6 +494,15 @@ async function run() {
           io.emit(`task-updated-${req.decoded.email}`);
           res.json({ message: "Task deleted" });
         });
+
+
+
+    // productsCollection related APIs
+    // get all products
+    app.get('/all-products', async(req, res) => {
+      const result = await productsCollection.find().toArray();
+      res.send(result);
+    })
     
 
     // userRole
