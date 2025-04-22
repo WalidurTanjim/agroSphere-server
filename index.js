@@ -504,6 +504,12 @@ async function run() {
       res.send(result);
     })
     
+    app.get('/product/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await productsCollection.findOne(query);
+      res.send(result);
+    })
 
     // userRole
     app.get("/user/role/:email", async (req, res) => {
