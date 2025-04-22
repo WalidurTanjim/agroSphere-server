@@ -511,6 +511,22 @@ async function run() {
       res.send(result);
     })
 
+    app.patch('/increase-upVote/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const increaseValue = { $inc: { upVote: 1 } };
+      const result = await productsCollection.updateOne(query, increaseValue);
+      res.send(result);
+    })
+
+    app.patch('/decrease-downVote/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const decreaseValue = { $inc: { downVote: 1 } };
+      const result = await productsCollection.updateOne(query, decreaseValue);
+      res.send(result);
+    })
+
     // userRole
     app.get("/user/role/:email", async (req, res) => {
       const email = req.params.email;
