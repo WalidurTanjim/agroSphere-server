@@ -231,6 +231,29 @@ async function run() {
       res.send(result);
     });
 
+    // check user's role with email address
+    app.get('/check-user-role', async(req, res) => {
+      const email = req?.query?.email;
+      const query = { email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    })
+
+    // request admin to change role
+    app.patch('/request-change-role', async(req, res) => {
+      const email = req.query.email;
+      const selectedRole = req.body.selectedRole;
+      const query = { email };
+      const isRequested = {
+        $set: {
+          isRequest: true,
+          wannaBe: selectedRole
+        }
+      };
+      const result = await usersCollection.updateOne(query, isRequested);
+      res.send(result);
+    })
+
     // update user password
     app.put("/users/:email", async (req, res) => {
       try {
