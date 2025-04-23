@@ -220,6 +220,13 @@ async function run() {
       res.send(result);
     });
 
+    // get all sellers
+    app.get("/sellers", async(req, res) => {
+      const query = { role: "seller" };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    })
+
     // get all incomming-requests
     app.get('/incomming-requests', async(req, res) => {
       const query = { isRequest: true };
