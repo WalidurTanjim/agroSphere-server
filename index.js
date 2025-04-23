@@ -64,6 +64,7 @@ async function run() {
     const trainersCollection = db.collection('trainers');
     const successStoryCollection = db.collection('successStory');
     const taskCollection = db.collection("taskRecords");
+    const quizCollection = db.collection("quizRecords");
 
 
     // middleware
@@ -374,6 +375,27 @@ async function run() {
       }
     });
 
+
+    app.post("/api/quizzes", async (req, res) => {
+      const quiz = req.body;
+      const result = await quizCollection.insertOne(quiz);
+      res.send(result);
+    });
+
+    app.get("/api/quizzes", async (req, res) => {
+      const quizzes = await quizCollection.find().toArray();
+      res.send(quizzes);
+    });
+
+    app.get("/api/quizzes/:id", async (req, res) => {
+      const id = req.params.id;
+      const quiz = await quizCollection.findOne({ _id: new ObjectId(id) });
+      res.send(quiz);
+    });
+
+    app.get("/", (req, res) => {
+      res.send("🌾 Farming Quiz API is running with MongoDB Native");
+    });
 
 
   //  Task Summary 
