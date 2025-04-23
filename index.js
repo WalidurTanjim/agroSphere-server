@@ -503,6 +503,13 @@ async function run() {
       const result = await productsCollection.find().toArray();
       res.send(result);
     })
+
+    app.get('/products/', async(req, res) => {
+      const email = req.query.email;
+      const query = { "seller.email" : email };
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    })
     
     app.get('/product/:id', async(req, res) => {
       const id = req.params.id;
