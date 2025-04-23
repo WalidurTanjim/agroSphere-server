@@ -65,6 +65,7 @@ async function run() {
     const successStoryCollection = db.collection('successStory');
     const taskCollection = db.collection("taskRecords");
     const quizCollection = db.collection("quizRecords");
+    const productsCollection = db.collection('products');
 
 
     // middleware
@@ -220,6 +221,20 @@ async function run() {
       res.send(result);
     });
 
+    // get all sellers
+    app.get("/sellers", async(req, res) => {
+      const query = { role: "seller" };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    // get all incomming-requests
+    app.get('/incomming-requests', async(req, res) => {
+      const query = { isRequest: true };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    })
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
@@ -230,6 +245,29 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+
+    // check user's role with email address
+    app.get('/check-user-role', async(req, res) => {
+      const email = req?.query?.email;
+      const query = { email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    })
+
+    // request admin to change role
+    app.patch('/request-change-role', async(req, res) => {
+      const email = req.query.email;
+      const selectedRole = req.body.selectedRole;
+      const query = { email };
+      const isRequested = {
+        $set: {
+          isRequest: true,
+          wannaBe: selectedRole
+        }
+      };
+      const result = await usersCollection.updateOne(query, isRequested);
+      res.send(result);
+    })
 
     // update user password
     app.put("/users/:email", async (req, res) => {
@@ -515,7 +553,45 @@ async function run() {
           io.emit(`task-updated-${req.decoded.email}`);
           res.json({ message: "Task deleted" });
         });
+
+
+
+    // productsCollection related APIs
+    // get all products
+    app.get('/all-products', async(req, res) => {
+      const result = await productsCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/products/', async(req, res) => {
+      const email = req.query.email;
+      const query = { "seller.email" : email };
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    })
     
+    app.get('/product/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await productsCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.patch('/increase-upVote/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const increaseValue = { $inc: { upVote: 1 } };
+      const result = await productsCollection.updateOne(query, increaseValue);
+      res.send(result);
+    })
+
+    app.patch('/decrease-downVote/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const decreaseValue = { $inc: { downVote: 1 } };
+      const result = await productsCollection.updateOne(query, decreaseValue);
+      res.send(result);
+    })
 
     // userRole
     app.get("/user/role/:email", async (req, res) => {
