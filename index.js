@@ -220,6 +220,13 @@ async function run() {
       res.send(result);
     });
 
+    // get all incomming-requests
+    app.get('/incomming-requests', async(req, res) => {
+      const query = { isRequest: true };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    })
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
