@@ -22,6 +22,7 @@ const corsOptions = {
   origin: [
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://localhost:5175",
     "https://agrosphere-4564a.web.app"],
   credentials: true,
   optionSuccessStatus: 200,
@@ -224,14 +225,14 @@ async function run() {
     });
 
     // get all sellers
-    app.get("/sellers", async(req, res) => {
+    app.get("/sellers", async (req, res) => {
       const query = { role: "seller" };
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     })
 
     // get all incomming-requests
-    app.get('/incomming-requests', async(req, res) => {
+    app.get('/incomming-requests', async (req, res) => {
       const query = { isRequest: true };
       const result = await usersCollection.find(query).toArray();
       res.send(result);
@@ -249,7 +250,7 @@ async function run() {
     });
 
     // check user's role with email address
-    app.get('/check-user-role', async(req, res) => {
+    app.get('/check-user-role', async (req, res) => {
       const email = req?.query?.email;
       const query = { email };
       const result = await usersCollection.findOne(query);
@@ -257,7 +258,7 @@ async function run() {
     })
 
     // request admin to change role
-    app.patch('/request-change-role', async(req, res) => {
+    app.patch('/request-change-role', async (req, res) => {
       const email = req.query.email;
       const selectedRole = req.body.selectedRole;
       const query = { email };
@@ -276,33 +277,33 @@ async function run() {
       try {
         const email = req.params.email;
         const { password } = req.body;
-    
+
         if (!email || !password) {
           return res.status(400).send({ message: "Email or password missing." });
         }
-    
+
         const query = { email };
         const user = await usersCollection.findOne(query);
-    
+
         if (!user) {
           return res.status(404).send({ message: "User not found." });
         }
-//     const hashedPassword = await bcrypt.hash(password, 10);
-// const update = { $set: { password: hashedPassword } };
+        //     const hashedPassword = await bcrypt.hash(password, 10);
+        // const update = { $set: { password: hashedPassword } };
         const update = { $set: { password } };
         const result = await usersCollection.updateOne(query, update);
-    
+
         if (result.modifiedCount === 0) {
           return res.status(500).send({ message: "Failed to update password." });
         }
-    
+
         res.send({ message: "Password updated successfully." });
       } catch (err) {
         console.error("Error updating password:", err);
         res.status(500).send({ message: "Internal server error." });
       }
     });
-    
+
 
     //videos
     app.get("/videos", async (req, res) => {
@@ -391,7 +392,7 @@ async function run() {
       res.send(result);
     })
 
-    
+
 
     // AI integrate (saikat ahmed)
     app.post("/ai-response", async (req, res) => {
@@ -438,148 +439,148 @@ async function run() {
     });
 
 
-  //  Task Summary 
-//   app.post('/ai-task-summary', async (req, res) => {
-//     const { taskDetails } = req.body;
+    //  Task Summary 
+    //   app.post('/ai-task-summary', async (req, res) => {
+    //     const { taskDetails } = req.body;
 
-//     if (!taskDetails) {
-//       return res.status(400).json({ message: "Please provide task details." });
-//     }
+    //     if (!taskDetails) {
+    //       return res.status(400).json({ message: "Please provide task details." });
+    //     }
 
-//     const prompt = `Generate a helpful, motivating summary and guidance for this farming task:
-// "${taskDetails}"`;
+    //     const prompt = `Generate a helpful, motivating summary and guidance for this farming task:
+    // "${taskDetails}"`;
 
-//     try {
-//       const response = await model.generateContent(prompt);
-//       const text = response.response.text();
-//       res.json({ summary: text });
-//     } catch (error) {
-//       console.error("Task Summary AI Error:", error.message);
-//       res.status(500).json({ message: "Task summary generation failed. Try again later." });
-//     }
-//   });
-    
+    //     try {
+    //       const response = await model.generateContent(prompt);
+    //       const text = response.response.text();
+    //       res.json({ summary: text });
+    //     } catch (error) {
+    //       console.error("Task Summary AI Error:", error.message);
+    //       res.status(500).json({ message: "Task summary generation failed. Try again later." });
+    //     }
+    //   });
+
 
 
     // TO-DO List (saikat)
-        // Add task
-        app.post("/records", verifyToken, async (req, res) => {
-          const { title, description, category } = req.body;
-          if (!title || title.length > 50) return res.status(400).json({ error: "Invalid title" });
-    
-          const newTask = {
-            userId: req.decoded.email,
-            title,
-            description,
-            category: category || "To-Do",
-            createdAt: new Date(),
-          };
-          const result = await taskCollection.insertOne(newTask);
-          io.emit(`task-updated-${req.decoded.email}`);
-          res.json({ ...newTask, _id: result.insertedId });
-        });
-    
-        // Fetch tasks
-        app.get("/records/:email", verifyToken, async (req, res) => {
-          const { email } = req.params;
-          if (email !== req.decoded.email) return res.status(403).json({ error: "Unauthorized access" });
-    
-          const tasks = await taskCollection.find({ userId: email }).toArray();
-          res.send(tasks);
-        });
-    
-        // Update task
-        app.put("/records/:id", verifyToken, async (req, res) => {
-          const { id } = req.params;
-          const { title, description, category } = req.body;
-          const updateFields = {};
-          if (title && title.length <= 50) updateFields.title = title;
-          if (description && description.length <= 200) updateFields.description = description;
-          if (category) updateFields.category = category;
-    
-          const result = await taskCollection.updateOne(
-            { _id: new ObjectId(id), userId: req.decoded.email },
-            { $set: updateFields }
-          );
-          if (result.matchedCount === 0) return res.status(404).json({ error: "Task not found" });
-    
-          io.emit(`task-updated-${req.decoded.email}`);
-          res.json({ message: "Task updated", taskId: id });
-        });
-    
-    
-        
-    
-    
+    // Add task
+    app.post("/records", verifyToken, async (req, res) => {
+      const { title, description, category } = req.body;
+      if (!title || title.length > 50) return res.status(400).json({ error: "Invalid title" });
+
+      const newTask = {
+        userId: req.decoded.email,
+        title,
+        description,
+        category: category || "To-Do",
+        createdAt: new Date(),
+      };
+      const result = await taskCollection.insertOne(newTask);
+      io.emit(`task-updated-${req.decoded.email}`);
+      res.json({ ...newTask, _id: result.insertedId });
+    });
+
+    // Fetch tasks
+    app.get("/records/:email", verifyToken, async (req, res) => {
+      const { email } = req.params;
+      if (email !== req.decoded.email) return res.status(403).json({ error: "Unauthorized access" });
+
+      const tasks = await taskCollection.find({ userId: email }).toArray();
+      res.send(tasks);
+    });
+
+    // Update task
+    app.put("/records/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const { title, description, category } = req.body;
+      const updateFields = {};
+      if (title && title.length <= 50) updateFields.title = title;
+      if (description && description.length <= 200) updateFields.description = description;
+      if (category) updateFields.category = category;
+
+      const result = await taskCollection.updateOne(
+        { _id: new ObjectId(id), userId: req.decoded.email },
+        { $set: updateFields }
+      );
+      if (result.matchedCount === 0) return res.status(404).json({ error: "Task not found" });
+
+      io.emit(`task-updated-${req.decoded.email}`);
+      res.json({ message: "Task updated", taskId: id });
+    });
+
+
+
+
+
     app.patch("/tasks/:id", verifyToken, async (req, res) => {
       try {
-          const { id } = req.params;
-          
-          if (!id || !ObjectId.isValid(id)) {
-              return res.status(400).json({ error: "Invalid task ID" });
-          }
-    
-          const { title, description, category } = req.body;
-          const updateFields = {};
-    
-          if (title && title.length <= 50) updateFields.title = title;
-          if (description && description.length <= 200) updateFields.description = description;
-          if (category) updateFields.category = category;
-    
-          const result = await taskCollection.updateOne(
-              { _id: new ObjectId(id), userId: req.decoded.email },
-              { $set: updateFields }
-          );
-    
-          if (result.matchedCount === 0) {
-              return res.status(404).json({ error: "Task not found" });
-          }
-    
-          console.log(`Task updated: ${id}`, updateFields);
-    
-          io.emit(`task-updated-${req.decoded.email}`);
-          res.json({ message: "Task updated", taskId: id, updatedFields: updateFields });
+        const { id } = req.params;
+
+        if (!id || !ObjectId.isValid(id)) {
+          return res.status(400).json({ error: "Invalid task ID" });
+        }
+
+        const { title, description, category } = req.body;
+        const updateFields = {};
+
+        if (title && title.length <= 50) updateFields.title = title;
+        if (description && description.length <= 200) updateFields.description = description;
+        if (category) updateFields.category = category;
+
+        const result = await taskCollection.updateOne(
+          { _id: new ObjectId(id), userId: req.decoded.email },
+          { $set: updateFields }
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).json({ error: "Task not found" });
+        }
+
+        console.log(`Task updated: ${id}`, updateFields);
+
+        io.emit(`task-updated-${req.decoded.email}`);
+        res.json({ message: "Task updated", taskId: id, updatedFields: updateFields });
       } catch (error) {
-          console.error("Error updating task:", error);
-          res.status(500).json({ error: "Internal server error", details: error.message });
+        console.error("Error updating task:", error);
+        res.status(500).json({ error: "Internal server error", details: error.message });
       }
     });
-    
-    
-        // Delete task
-        app.delete("/records/:id", verifyToken, async (req, res) => {
-          const { id } = req.params;
-          const result = await taskCollection.deleteOne({ _id: new ObjectId(id), userId: req.decoded.email });
-          if (result.deletedCount === 0) return res.status(404).json({ error: "Task not found" });
-    
-          io.emit(`task-updated-${req.decoded.email}`);
-          res.json({ message: "Task deleted" });
-        });
+
+
+    // Delete task
+    app.delete("/records/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const result = await taskCollection.deleteOne({ _id: new ObjectId(id), userId: req.decoded.email });
+      if (result.deletedCount === 0) return res.status(404).json({ error: "Task not found" });
+
+      io.emit(`task-updated-${req.decoded.email}`);
+      res.json({ message: "Task deleted" });
+    });
 
 
 
     // productsCollection related APIs
     // get all products
-    app.get('/all-products', async(req, res) => {
+    app.get('/all-products', async (req, res) => {
       const result = await productsCollection.find().toArray();
       res.send(result);
     })
 
-    app.get('/products/', async(req, res) => {
+    app.get('/products/', async (req, res) => {
       const email = req.query.email;
-      const query = { "seller.email" : email };
+      const query = { "seller.email": email };
       const result = await productsCollection.find(query).toArray();
       res.send(result);
     })
-    
-    app.get('/product/:id', async(req, res) => {
+
+    app.get('/product/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await productsCollection.findOne(query);
       res.send(result);
     })
 
-    app.patch('/increase-upVote/:id', async(req, res) => {
+    app.patch('/increase-upVote/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const increaseValue = { $inc: { upVote: 1 } };
@@ -587,7 +588,7 @@ async function run() {
       res.send(result);
     })
 
-    app.patch('/decrease-downVote/:id', async(req, res) => {
+    app.patch('/decrease-downVote/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const decreaseValue = { $inc: { downVote: 1 } };
