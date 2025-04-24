@@ -66,6 +66,8 @@ async function run() {
     const taskCollection = db.collection("taskRecords");
     const quizCollection = db.collection("quizRecords");
     const productsCollection = db.collection('products');
+    const wasteCollection = db.collection("waste");
+    const recommendationCollection = db.collection("recommendations");
 
 
     // middleware
@@ -592,6 +594,29 @@ async function run() {
       const result = await productsCollection.updateOne(query, decreaseValue);
       res.send(result);
     })
+
+    // waste
+    app.get("/waste", async (req, res) => {
+      const waste = await wasteCollection.find().toArray();
+      res.send(waste);
+    });
+
+    app.post("/waste", async (req, res) => {
+      const newWaste = req.body;
+      const result = await wasteCollection.insertOne(newWaste);
+      res.send(result);
+    });
+
+    app.get("/recommendation/:type", async (req, res) => {
+      const type = req.params.type;
+      const result = await recommendationCollection.findOne({ wasteType: type });
+    
+      if (!result) {
+        return res.status(404).json({ message: "এই বর্জ্যের জন্য কোনো পরামর্শ পাওয়া যায়নি।" });
+      }
+    
+      res.send(result);
+    });
 
     // userRole
     app.get("/user/role/:email", async (req, res) => {
