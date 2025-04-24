@@ -636,6 +636,38 @@ async function run() {
       res.send({ userRole });
     });
 
+
+    // approve_req api
+    app.patch('/approve_req', async(req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const existUser = await usersCollection.findOne(query);
+      const wannaBeRole = existUser?.wannaBe;
+      const updated_doc = {
+        $set: { role: wannaBeRole },
+        $unset: {
+          isRequest: "",
+          wannaBe: ""
+        }
+      };
+      const result = await usersCollection.updateOne(query, updated_doc);
+      res.send(result);
+    })
+
+    // reject_req api
+    app.patch('/reject_req', async(req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const updated_doc = {
+        $unset: {
+          isRequest: "",
+          wannaBe: ""
+        }
+      };
+      const result = await usersCollection.updateOne(query, updated_doc);
+      res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     // console.log("Pinged your deployment. You successfully connected to MongoDB!");
