@@ -221,6 +221,13 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/single-user', async(req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    })
+
     // get all sellers
     app.get("/sellers", async (req, res) => {
       const query = { role: "seller" };
