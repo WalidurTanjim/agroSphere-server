@@ -69,6 +69,7 @@ async function run() {
     const productsCollection = db.collection('products');
     const wasteCollection = db.collection("waste");
     const recommendationCollection = db.collection("recommendations");
+    const ordersCollection = db.collection("orders");
 
 
     // middleware
@@ -617,6 +618,18 @@ async function run() {
       }
     
       res.send(result);
+    });
+
+    app.get("/orders/:sellerEmail", async (req, res) => {
+      const sellerEmail = req.params.sellerEmail;
+      const orders = await ordersCollection.find({ farmerEmail: sellerEmail }).toArray();
+      res.send(orders);
+    });
+
+    app.get("/buyer-orders/:buyerEmail", async (req, res) => {
+      const buyerEmail = req.params.buyerEmail;
+      const orders = await ordersCollection.find({ buyerEmail }).toArray();
+      res.send(orders);
     });
 
     // userRole
