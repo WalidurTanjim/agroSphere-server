@@ -605,6 +605,9 @@ async function run() {
 
     app.post("/waste", async (req, res) => {
       const newWaste = req.body;
+      newWaste.storedSince = new Date();
+      const daysStored = Math.floor((new Date() - new Date(newWaste.storedSince)) / (1000 * 60 * 60 * 24));
+      newWaste.daysStored = daysStored;
       const result = await wasteCollection.insertOne(newWaste);
       res.send(result);
     });
@@ -622,14 +625,19 @@ async function run() {
 
     app.get("/orders/:sellerEmail", async (req, res) => {
       const sellerEmail = req.params.sellerEmail;
-      const orders = await ordersCollection.find({ farmerEmail: sellerEmail }).toArray();
+      const orders = await ordersCollection.find({ sellerEmail }).toArray();
       res.send(orders);
     });
 
-    app.get("/buyer-orders/:buyerEmail", async (req, res) => {
-      const buyerEmail = req.params.buyerEmail;
-      const orders = await ordersCollection.find({ buyerEmail }).toArray();
-      res.send(orders);
+    app.post("/orders", async (req, res) => {
+      try {
+        const order = req.body;
+        const result = await ordersCollection.insertOne(order);
+        res.send(result);
+      } catch (err) {
+        console.error("Order Insert Error:", err);
+        res.status(500).send({ message: "Failed to place order." });
+      }
     });
 
     // userRole
