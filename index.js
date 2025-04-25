@@ -225,6 +225,13 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/single-user', async(req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    })
+
     // get all sellers
     app.get("/sellers", async (req, res) => {
       const query = { role: "seller" };
@@ -679,6 +686,34 @@ async function run() {
       };
       const result = await usersCollection.updateOne(query, updated_doc);
       res.send(result);
+    })
+
+
+
+    // get all counts 
+    app.get('/users-count', async(req, res) => {
+      const count = await usersCollection.estimatedDocumentCount();
+      res.send({count});
+    })
+    app.get('/farmers-count', async(req, res) => {
+      const count = await usersCollection.countDocuments({ role: 'farmer' })
+      res.send({ count })
+    })
+    app.get('/sellers-count', async(req, res) => {
+      const count = await usersCollection.countDocuments({ role: 'seller' })
+      res.send({ count })
+    })
+    app.get('/trainers-count', async(req, res) => {
+      const count = await usersCollection.countDocuments({ role: 'trainer' })
+      res.send({ count })
+    })
+    app.get('/posts-count', async(req, res) => {
+      const count = await forumCollection.estimatedDocumentCount();
+      res.send({count});
+    })
+    app.get('/videos-count', async(req, res) => {
+      const count = await videosCollection.estimatedDocumentCount();
+      res.send({count});
     })
 
     // Send a ping to confirm a successful connection
