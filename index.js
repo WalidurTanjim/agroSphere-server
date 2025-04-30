@@ -71,6 +71,8 @@ async function run() {
     const wasteCollection = db.collection("waste");
     const recommendationCollection = db.collection("recommendations");
     const ordersCollection = db.collection("orders");
+    const communityReviewCollection = db.collection("community_reviews");
+
 
 
     // middleware
@@ -696,6 +698,33 @@ async function run() {
         }
       };
       const result = await usersCollection.updateOne(query, updated_doc);
+      res.send(result);
+    })
+
+    // communityReviewCollection
+    app.get('/all-community-reviews', async(req, res) => {
+      const result = await communityReviewCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/community-reviews/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { postId: id };
+      const result = await communityReviewCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.post('/community-review', async(req, res) => {
+      const newReview = req.body;
+      console.log(newReview)
+      const result = await communityReviewCollection.insertOne(newReview);
+      res.send(result);
+    })
+
+    app.delete('/community-review-delete', async(req, res) => {
+      const id = req.query.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await communityReviewCollection.deleteOne(query);
       res.send(result);
     })
 
