@@ -72,6 +72,7 @@ async function run() {
     const recommendationCollection = db.collection("recommendations");
     const ordersCollection = db.collection("orders");
     const communityReviewCollection = db.collection("community_reviews");
+    const sessionCollection = db.collection("session");
 
 
 
@@ -725,6 +726,33 @@ async function run() {
       const id = req.query.id;
       const query = { _id: new ObjectId(id) };
       const result = await communityReviewCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+    // session related apis
+    app.get('/all-sessions', async(req, res) => {
+      const result = await sessionCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/session/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await sessionCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.post('/post-session', async(req, res) => {
+      const newSession = req.body;
+      const result = await sessionCollection.insertOne(newSession);
+      res.send(result)
+    })
+
+    app.delete('/delete-session/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await sessionCollection.deleteOne(query);
       res.send(result);
     })
 
